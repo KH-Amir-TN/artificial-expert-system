@@ -2,9 +2,10 @@
 #Constants
 FILES_ACCES_MODE = 'r'
 RULES_PREM_CONC_SEP = "alors"
-PREM_CONJONCTION = "et"
+PREM_CONJONCTION = " et "
 RULE_LBL_SEP = ':'
 RULE_PREFIX = "si"
+CON_SEP = " et "
 
 
 def print_list(items,msg):
@@ -13,7 +14,7 @@ def print_list(items,msg):
         print(item)
 
 def form_rule(line):
-    line = line.strip()
+    line = line.strip().lower()
     split = line.split(RULE_LBL_SEP)
     lbl = split[0]
     rule = split[-1]
@@ -21,11 +22,11 @@ def form_rule(line):
     rule = split[-1]
     split = rule.split(RULES_PREM_CONC_SEP)
     premises = split[0].split(PREM_CONJONCTION)
-    conclusion = split[-1]
-    return {lbl:{"Premises":premises,"Conclusion":conclusion}}
+    conclusions = split[-1].split(CON_SEP)
+    return {lbl:{"Premises":premises,"Conclusions":conclusions}}
 
 def form_fact(line):
-    return line.strip()
+    return line.strip().lower()
 
 def interfere_file(filename,form_line):
     res=[]
