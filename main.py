@@ -19,7 +19,8 @@ def log(msg):
         LOG_FILE.writelines(str( msg ) + "\n")
     print(msg)
 
-
+def resolve_conflict(rules):
+    return rules[0]
     
 
 def gen_list_of_combinations(items):
@@ -67,15 +68,16 @@ def interfere_file(filename,form_line):
 
 def interfere(rules_db_filename,facts_db_filename,end_goal):
  
-  rules = interfere_file(rules_db_filename,form_rule)
-  facts = interfere_file(facts_db_filename,form_fact)
-  
+  init_rules = interfere_file(rules_db_filename,form_rule)
+  init_facts = interfere_file(facts_db_filename,form_fact)
+  facts = init_facts
+  rules = init_rules
   log(facts)
   log(rules)
 
 
   while len(rules) > 0 :
-    condidate_rules = []
+
     log("#####")
     log("NEW ITERATION")
     log("#####")
@@ -93,62 +95,71 @@ def interfere(rules_db_filename,facts_db_filename,end_goal):
  
 
     facts_combinitions_stages = gen_list_of_combinations(facts)
-    new_facts = []
 
-    for rule in rules:
-        log("-----------")
-        log("Rule to check : ")
-        log(rule)
-        log("------------")
-        for stage in facts_combinitions_stages:
+
+    new_facts = []
+    init_rules_len = len(rules)
+    for stage in facts_combinitions_stages:
         
-            for fact_combinition in stage:
-                log("------")
-                log("FACT COMBINATION: ")
-                log("------")
-                log(fact_combinition)
+        for fact_combinition in stage:
+            log("------")
+            log("FACT COMBINATION: ")
+            log("------")
+            log(fact_combinition)
+            candidate_rules = []
+            for rule in rules:
+                log("-----------")
+                log("Rule to check : ")
+                log(rule)
+                log("------------")
+
                 if is_condidate(rule,fact_combinition):
-                    condidate_rules.append(rule)
+                    candidate_rules.append(rule)
                     log("---------")
                     log("^^^^ SELECTED RULE IS CANDIDATE FOR FACT COMBINATION ^^^^")
                     log("THE CANDIDATE RULES BECOMES : ")
-                    log(condidate_rules)
+                    log(candidate_rules)
                     log("---------")
 
 
-        if rule in condidate_rules :
-            new_fact_rule = rule
-            new_fact = new_fact_rule["Conclusions"][0]
-            new_facts.append(new_fact)
-            rules.remove(rule)
-            #Check if goal is interfered?
-            if end_goal == new_fact  :
-                log("####################")
-                log("'" + end_goal + "'" + " has been interfered by rule : ")
-                log(new_fact_rule)
-                log("RULES : ")
-                log(rules)
-                log("Facts : ")
-                log(facts)
-                exit(0)
+            if  len(candidate_rules) > 0 :
+                new_fact_rule = resolve_conflict(candidate_rules)
+                new_fact = new_fact_rule["Conclusions"][0]
+                new_facts.append(new_fact)
+                rules.remove(new_fact_rule)
+                #Check if goal is interfered?
+                if end_goal == new_fact  :
+                    log("####################")
+                    log("'" + end_goal + "'" + " has been interfered by rule : ")
+                    log(new_fact_rule)
+                    log("RULES : ")
+                    log(rules)
+                    log("Facts : ")
+                    log(facts)
+                    exit(0)
 
-    if len(condidate_rules) == 0 :
+    if len(rules) == init_rules_len :
+
         log("#############")
         log("[ERROR] : No candidate rule for the given facts :( ")
         log("#####FACTS#######")
         log(facts)
+        log("#####RULES#######")
+        log(rules)
+        
         exit(1)
-    
+                  
     log("-----------")
     log("Learnt facts in this iteration : ")
     log(new_facts)
     log("------------")
-
     facts = list( set( facts + new_facts ) ) 
+
+    
     
 
 
-  return [rules,facts,condidate_rules]
+  return [rules,facts,candidate_rules]
 
    
 
