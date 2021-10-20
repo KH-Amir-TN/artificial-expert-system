@@ -1,0 +1,3 @@
+r1:si A et B et C alors D
+r2:si A et B alors C
+r3:si A alors B
