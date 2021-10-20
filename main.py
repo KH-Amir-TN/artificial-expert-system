@@ -29,7 +29,7 @@ def gen_list_of_combinations(items):
         res.append([list(comb) for comb in list(itertools.combinations(items, index))])
     return res
 
-def is_condidate(rule,fact):
+def is_candidate(rule,fact):
     return ( len(list( set(rule["Premises"]) - set(fact) )) == 0 ) and ( len(list( set(fact) - set(rule["Premises"]) )) == 0 )
 
 def strip_list(items):
@@ -113,7 +113,7 @@ def interfere(rules_db_filename,facts_db_filename,end_goal):
                 log(rule)
                 log("------------")
 
-                if is_condidate(rule,fact_combinition):
+                if is_candidate(rule,fact_combinition):
                     candidate_rules.append(rule)
                     log("---------")
                     log("^^^^ SELECTED RULE IS CANDIDATE FOR FACT COMBINATION ^^^^")
@@ -124,11 +124,11 @@ def interfere(rules_db_filename,facts_db_filename,end_goal):
 
             if  len(candidate_rules) > 0 :
                 new_fact_rule = resolve_conflict(candidate_rules)
-                new_fact = new_fact_rule["Conclusions"][0]
-                new_facts.append(new_fact)
+                new_fact = new_fact_rule["Conclusions"]
+                new_facts += new_fact
                 rules.remove(new_fact_rule)
                 #Check if goal is interfered?
-                if end_goal == new_fact  :
+                if end_goal in new_fact  :
                     log("####################")
                     log("'" + end_goal + "'" + " has been interfered by rule : ")
                     log(new_fact_rule)
