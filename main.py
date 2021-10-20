@@ -13,6 +13,7 @@ LOG_FILENAME = str( time.time() ) + ".log"
 LOG_FILE = open(LOG_OUT + LOG_FILENAME , "w")
 
 
+
 def log(msg):
     if LOG_FILE:
         LOG_FILE.writelines(str( msg ) + "\n")
@@ -72,15 +73,28 @@ def interfere(rules_db_filename,facts_db_filename,end_goal):
   log(facts)
   log(rules)
 
+
   while len(rules) > 0 :
+    condidate_rules = []
+    log("#####")
+    log("NEW ITERATION")
+    log("#####")
+
     log("-----------")
     log("Facts in this iteration : ")
     log(facts)
     log("------------")
 
-    condidate_rules = []
+    log("------")
+    log("RULES : ")
+    log(rules)
+    log("------")
+
+ 
+
     facts_combinitions_stages = gen_list_of_combinations(facts)
     new_facts = []
+
     for rule in rules:
         log("-----------")
         log("Rule to check : ")
@@ -95,27 +109,28 @@ def interfere(rules_db_filename,facts_db_filename,end_goal):
                 log(fact_combinition)
                 if is_condidate(rule,fact_combinition):
                     condidate_rules.append(rule)
-                    rules.remove(rule)
-                    new_fact_rule =  condidate_rules[0]
-                    new_fact = new_fact_rule["Conclusions"][0]
-                    new_facts.append(condidate_rules[0]["Conclusions"][0])
+                    log("---------")
                     log("^^^^ SELECTED RULE IS CANDIDATE FOR FACT COMBINATION ^^^^")
-                    log("THE CANDIDATE RULES : ")
+                    log("THE CANDIDATE RULES BECOMES : ")
                     log(condidate_rules)
-                    log("------")
-                    log("RULES : ")
-                    log(rules)
-                    log("------")
-                     #Check if goal is interfered?
-                    if end_goal == new_fact  :
-                        log("####################")
-                        log("'" + end_goal + "'" + " has been interfered by rule : ")
-                        log(condidate_rules[0])
-                        log("RULES : ")
-                        log(rules)
-                        log("Facts : ")
-                        log(facts)
-                        exit(0)
+                    log("---------")
+
+
+        if rule in condidate_rules :
+            new_fact_rule = rule
+            new_fact = new_fact_rule["Conclusions"][0]
+            new_facts.append(new_fact)
+            rules.remove(rule)
+            #Check if goal is interfered?
+            if end_goal == new_fact  :
+                log("####################")
+                log("'" + end_goal + "'" + " has been interfered by rule : ")
+                log(new_fact_rule)
+                log("RULES : ")
+                log(rules)
+                log("Facts : ")
+                log(facts)
+                exit(0)
 
     if len(condidate_rules) == 0 :
         log("#############")
@@ -133,7 +148,7 @@ def interfere(rules_db_filename,facts_db_filename,end_goal):
     
 
 
-  return [rules,facts]
+  return [rules,facts,condidate_rules]
 
    
 
@@ -144,10 +159,13 @@ def start():
   if len(end_goal) == 0:
       print("You did not provide an intended goal to interfere,therefore the program will interfere until it reaches a dead end.")
  
-  rules,facts = interfere(rules_db_filename,facts_db_filename,end_goal)
+  rules,facts,candidate_rules = interfere(rules_db_filename,facts_db_filename,end_goal)
+  log("-----")
   print_list(rules,"Rules")
+  log("-----")
   print_list(facts,"Facts")
-
+  log("-----")
+  print_list(candidate_rules,"Candidate rules")   
 
 #Main program
 start()
