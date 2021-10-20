@@ -1,3 +1,9 @@
-A^B^C>D
-E^F>G
-G^A>H
+r1:si mange_viande alors carnivore
+r2:si dents_pointues et griffes et yeux_avant alors carnivore
+r3:si mange_herbe alors non carnivore
+r4:si mammifere et sabots alors ongule
+r5:si mammifere et rumine alors ongule
+r6:si mammifere et carnivore et brun et taches alors guepard
+r7:si mammifere et carnivore et brun et raies alors tigre
+r8:si ongule et long_cou et longues_pattes et taches alors girafe
+r9:si ongule et raies alors zebre
