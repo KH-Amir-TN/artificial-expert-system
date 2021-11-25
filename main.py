@@ -20,6 +20,7 @@ def preflight_checks(facts,goal):
         log("#################",explicit_log_and_print=True)
         log(MSG,explicit_log_and_print=True)
         log("#############",explicit_log_and_print=True)
+        print_completion(0)
         exit(0)
 
 def log(msg,explicit_log_and_print=False):
@@ -83,6 +84,56 @@ def interfere_file(filename,form_line):
     return res
 
 
+def reverse_chain(rules,facts,end_goal):
+    
+    log("#################")
+    log("Reverse chaining the end goal: "+end_goal)
+    log("#################")
+
+    if(end_goal in facts):
+        log("The end goal "+end_goal+" is a fact")
+        return True
+
+    log("#################")
+    log("Extracting candidate rules for the end goal "+end_goal)
+    log("#################")
+
+    candidate_rules = []
+    for rule in rules:
+        log("Checking rule "+ rule['Rule'])
+        conclusions = rule['Conclusions']
+        if end_goal in conclusions:
+            log("Rule "+rule['Rule']+" is a candidate rule.")
+            candidate_rules.append(rule)
+    
+    log("#################")    
+    log("Candidate rules for the end goal "+end_goal+":")
+    log(candidate_rules)
+    log("#################")
+
+    if len(candidate_rules) == 0:
+        log("#########################",explicit_log_and_print=True)
+        log("[Error] The goal "+end_goal+" has no candidate rule.",explicit_log_and_print=True)
+        log("#########################",explicit_log_and_print=True)
+        return False
+    
+    candidate_rule = resolve_conflict(candidate_rules)
+    log("Elected candidate rule:")
+    log(candidate_rule)
+
+    #Extract premises from candidate_rule
+    
+    candidate_rule_premises = candidate_rule['Premises']
+    
+    for premise in candidate_rule_premises:
+       if not reverse_chain(rules,facts,premise):
+           return False
+     
+    log("The end goal "+end_goal+" has been interfered by the rule:")
+    log(candidate_rule)
+    return True
+
+
 def interfere(rules_db_filename,facts_db_filename,end_goal):
  
   init_rules = interfere_file(rules_db_filename,form_rule)
@@ -104,8 +155,9 @@ def interfere(rules_db_filename,facts_db_filename,end_goal):
   if not LOG_AND_PRINT:
       print("Interfering ...")
 
-  
+  has_interfered_endgoal = reverse_chain(rules,facts,end_goal)
 
+  
     
   end_time = time.time()
 

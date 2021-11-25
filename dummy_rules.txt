@@ -1,3 +1,7 @@
-r1:si A et B et C alors D
-r2:si A et B alors C
-r3:si A alors B
+r1:si A alors E
+r2:si B alors D
+r3:si H alors A
+r4:si D et E et K alors C
+r5:si E et K alors B
+r6:si E et G alors C
+r7:si G et K et F alors A
